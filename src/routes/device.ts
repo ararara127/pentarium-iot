@@ -31,24 +31,20 @@ router.post("/", async (req, res) => {
 
 // GET /api/devices  -> daftar device milik tenant ini SAJA
 router.get("/", async (req, res) => {
+  const ONLINE_WINDOW_MS = 2 * 60 * 1000;
+  const threshold = new Date(Date.now() - ONLINE_WINDOW_MS);
+
   const devices = await prisma.device.findMany({
     where: { tenantId: req.auth!.tenantId },
     orderBy: { createdAt: "desc" },
   });
-  res.json(devices);
-});
 
-// GET /api/devices/:id  -> detail satu device (tetap dibatasi tenant)
-router.get("/:id", async (req, res) => {
-  const device = await prisma.device.findFirst({
-    where: { id: req.params.id, tenantId: req.auth!.tenantId },
-  });
-
-  if (!device) {
-    res.status(404).json({ error: "device tidak ditemukan" });
-    return;
-  }
-  res.json(device);
+  res.json(
+    devices.map((d) => ({
+      ...d,
+      status: d.lastSeenAt && d.lastSeenAt > threshold ? "online" : "offline",
+    }))
+  );
 });
 
 // POST /api/devices/claim  -> klaim device pakai claimCode

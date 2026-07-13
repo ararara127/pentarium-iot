@@ -38,6 +38,8 @@ model Device {
   lastSeenAt DateTime?
   createdAt  DateTime    @default(now())
   telemetry  Telemetry[]
+  alertRules AlertRule[]
+  alerts     Alert[]
 
   @@index([tenantId])
 }
@@ -52,4 +54,35 @@ model Telemetry {
 
   @@index([deviceId, ts])
   @@index([tenantId, ts])
+}
+
+model AlertRule {
+  id        String   @id @default(cuid())
+  tenantId  String
+  deviceId  String
+  device    Device   @relation(fields: [deviceId], references: [id])
+  metric    String   // contoh: "suhu"
+  operator  String   // ">" atau "<"
+  threshold Float
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  alerts    Alert[]
+
+  @@index([deviceId])
+  @@index([tenantId])
+}
+
+model Alert {
+  id        String    @id @default(cuid())
+  tenantId  String
+  deviceId  String
+  device    Device    @relation(fields: [deviceId], references: [id])
+  ruleId    String
+  rule      AlertRule @relation(fields: [ruleId], references: [id])
+  message   String
+  value     Float
+  createdAt DateTime  @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([deviceId])
 }
