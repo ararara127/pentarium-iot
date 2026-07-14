@@ -4,7 +4,13 @@ import { prisma } from "./prisma.js";
 const TOPIC = "pentarium/+/telemetry";
 
 export function startMqtt() {
-  const client = mqtt.connect(process.env.MQTT_URL as string);
+  // Railway / production tanpa broker: set MQTT_ENABLED=false
+  if (process.env.MQTT_ENABLED === "false" || !process.env.MQTT_URL) {
+    console.warn("MQTT dimatikan / MQTT_URL kosong — skip koneksi broker");
+    return;
+  }
+
+  const client = mqtt.connect(process.env.MQTT_URL);
 
   client.on("connect", () => {
     console.log("MQTT tersambung ke broker");
