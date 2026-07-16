@@ -9,9 +9,45 @@ Backend IoT Platform untuk monitoring perangkat berbasis ESP32 menggunakan:
 - MySQL
 - Mosquitto MQTT
 
-## Menjalankan project
+# Running the Project
+
+Open 3 terminals.
+
+### Terminal 1
+
+Backend
 
 ```bash
-npm install
-docker compose up -d
+cd pentarium-iot
 npm run dev
+```
+
+---
+
+### Terminal 2
+
+Frontend
+
+```bash
+cd pentarium-frontend
+npm run dev
+```
+
+---
+
+### Terminal 3
+
+MQTT Simulator
+
+```bash
+cd pentarium-iot
+npx tsx src/simulate.ts
+```
+
+---
+
+Open browser
+
+```
+http://localhost:5173
+```
