@@ -40,6 +40,7 @@ model Device {
   telemetry  Telemetry[]
   alertRules AlertRule[]
   alerts     Alert[]
+  widgets DashboardWidget[]
 
   @@index([tenantId])
 }
@@ -85,4 +86,20 @@ model Alert {
 
   @@index([tenantId, createdAt])
   @@index([deviceId])
+}
+
+model DashboardWidget {
+  id        String   @id @default(cuid())
+  tenantId  String
+  type      String   // "chart" | "gauge" | "stat" | "text" | "button"
+  title     String
+  deviceId  String?
+  device    Device?  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  metric    String?  // "suhu" | "kelembapan" | dll
+  config    Json?    // {min, max, unit, limit}
+  width     String   @default("half")  // "half" | "full"
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, position])
 }

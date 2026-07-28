@@ -6,11 +6,20 @@ import telemetryRouter from "./routes/telemetry.js";
 import dashboardRouter from "./routes/dashboard.js";
 import { startMqtt } from "./mqtt.js";
 import cors from "cors";
-import alertRouter from "./routes/alert.js"; 
+import alertRouter from "./routes/alert.js";
+import widgetRouter from "./routes/widget.js";
+
+for (const key of ["DATABASE_URL", "JWT_SECRET"]) {
+  if (!process.env[key]) {
+    console.error(`FATAL: ${key} belum di-set di .env`);
+    process.exit(1);
+  }
+}
 
 const app = express();
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
+app.use("/api/widgets", widgetRouter);
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });

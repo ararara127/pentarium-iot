@@ -7,7 +7,7 @@ services:
       MYSQL_USER: pentarium
       MYSQL_PASSWORD: pentarium
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 

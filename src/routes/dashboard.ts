@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../prisma.js";
 import { requireAuth } from "../middleware/auth.js";
+import { deviceStatus } from "../utils/status.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -9,18 +10,12 @@ router.use(requireAuth);
 router.get("/", async (req, res) => {
   const tenantId = req.auth!.tenantId;
 
-  // device dianggap "online" kalau kirim data <= 2 menit terakhir
-  const ONLINE_WINDOW_MS = 2 * 60 * 1000;
-  const threshold = new Date(Date.now() - ONLINE_WINDOW_MS);
-
   const devices = await prisma.device.findMany({
     where: { tenantId },
     orderBy: { createdAt: "desc" },
   });
 
-  const online = devices.filter(
-    (d) => d.lastSeenAt && d.lastSeenAt > threshold
-  ).length;
+  const online = devices.filter((d) => deviceStatus(d.lastSeenAt) === "online").length;
 
   res.json({
     totalDevices: devices.length,
@@ -31,7 +26,7 @@ router.get("/", async (req, res) => {
       name: d.name,
       claimed: d.claimed,
       lastSeenAt: d.lastSeenAt,
-      status: d.lastSeenAt && d.lastSeenAt > threshold ? "online" : "offline",
+      status: deviceStatus(d.lastSeenAt),
     })),
   });
 });

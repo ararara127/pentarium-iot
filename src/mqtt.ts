@@ -3,14 +3,24 @@ import { prisma } from "./prisma.js";
 
 const TOPIC = "pentarium/+/telemetry";
 
+let client: mqtt.MqttClient | null = null;
+
+export function publishCommand(deviceToken: string, payload: object) {
+  if (!client || !client.connected) {
+    throw new Error("MQTT belum tersambung");
+  }
+  const topic = `pentarium/${deviceToken}/command`;
+  client.publish(topic, JSON.stringify(payload), { qos: 1 });
+  console.log(`Perintah dikirim ke ${topic}:`, payload);
+}
+
 export function startMqtt() {
-  // Railway / production tanpa broker: set MQTT_ENABLED=false
   if (process.env.MQTT_ENABLED === "false" || !process.env.MQTT_URL) {
-    console.warn("MQTT dimatikan / MQTT_URL kosong — skip koneksi broker");
+    console.warn("MQTT dimatikan / MQTT_URL kosong, skip koneksi broker");
     return;
   }
 
-  const client = mqtt.connect(process.env.MQTT_URL);
+  client = mqtt.connect(process.env.MQTT_URL);
 
   client.on("connect", () => {
     console.log("MQTT tersambung ke broker");
