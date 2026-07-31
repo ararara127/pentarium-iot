@@ -1,5 +1,6 @@
 import mqtt from "mqtt";
 import { prisma } from "./prisma.js";
+import { notifyAlert } from "./notify.js";
 
 const TOPIC = "pentarium/+/telemetry";
 
@@ -24,7 +25,7 @@ export function startMqtt() {
 
   client.on("connect", () => {
     console.log("MQTT tersambung ke broker");
-    client.subscribe(TOPIC, (err) => {
+    client!.subscribe(TOPIC, (err) => {
       if (err) console.error("Gagal subscribe:", err.message);
       else console.log(`Subscribe ke topic: ${TOPIC}`);
     });
@@ -67,7 +68,7 @@ export function startMqtt() {
       });
 
       // 5. cek aturan alert
-      await checkAlerts(device.id, device.tenantId, data as Record<string, number>);
+      await checkAlerts(device, data as Record<string, number>);
 
       console.log(`Data tersimpan dari ${device.name}:`, data);
     } catch (err) {
@@ -80,15 +81,12 @@ export function startMqtt() {
   });
 }
 
-
-
 async function checkAlerts(
-  deviceId: string,
-  tenantId: string,
+  device: { id: string; tenantId: string; name: string },
   data: Record<string, number>
 ) {
   const rules = await prisma.alertRule.findMany({
-    where: { deviceId, enabled: true },
+    where: { deviceId: device.id, enabled: true },
   });
 
   for (const rule of rules) {
@@ -113,10 +111,18 @@ async function checkAlerts(
     const message = `${rule.metric} = ${value} (batas ${rule.operator} ${rule.threshold})`;
 
     await prisma.alert.create({
-      data: { tenantId, deviceId, ruleId: rule.id, message, value },
+      data: {
+        tenantId: device.tenantId,
+        deviceId: device.id,
+        ruleId: rule.id,
+        message,
+        value,
+      },
     });
 
-    // notifikasi: sementara log dulu, nanti diganti email/WhatsApp
     console.warn(`ALERT: ${message}`);
+
+    // kirim email tanpa ditunggu, biar tidak menghambat pemrosesan MQTT
+    void notifyAlert(device, message);
   }
 }

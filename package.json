@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.3",
     "mqtt": "^5.15.2",
     "prisma": "^6.19.3",
+    "resend": "^6.18.0",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
