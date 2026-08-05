@@ -19,14 +19,6 @@ services:
       timeout: 5s
       retries: 10
 
-  mosquitto:
-    image: eclipse-mosquitto:2
-    restart: unless-stopped
-    ports:
-      - "1883:1883"
-    volumes:
-      - ./mosquitto/config:/mosquitto/config
-
   backend:
     build: .
     restart: unless-stopped
