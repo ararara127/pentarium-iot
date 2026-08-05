@@ -5,11 +5,11 @@ WORKDIR /app
 # openssl dibutuhkan Prisma
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
+# prisma harus ada duluan karena postinstall menjalankan prisma generate
 COPY package*.json ./
-RUN npm ci
-
 COPY prisma ./prisma
-RUN npx prisma generate
+
+RUN npm ci
 
 COPY . .
 
