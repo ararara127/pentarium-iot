@@ -1,0 +1,15 @@
+$kind: http-request
+name: http://103.6.168.182:3000/api/auth/login
+description: ""
+url: http://103.6.168.182:3000/api/auth/login
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"azzahraindah127@gmail.com\",\r
+
+    \  \"password\": \"ara123\"\r
+
+    }"
+order: 4501113175728517

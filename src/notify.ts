@@ -86,7 +86,7 @@ export async function sendVerificationEmail(
     const baseUrl = process.env.APP_URL ?? "http://localhost:5173";
     const link = `${baseUrl}/verify-email?token=${token}`;
 
-    const { error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: process.env.ALERT_FROM_EMAIL ?? "Pentarium IoT <onboarding@resend.dev>",
       to: email,
       subject: "Verifikasi email akun Pentarium IoT",
@@ -94,11 +94,11 @@ export async function sendVerificationEmail(
     });
 
     if (error) {
-      console.error("Gagal kirim email verifikasi:", error.message);
+      console.error("RESEND MENOLAK:", JSON.stringify(error));
       return false;
     }
 
-    console.log(`Email verifikasi terkirim ke ${email}`);
+    console.log(`Email verifikasi terkirim (id: ${data?.id}) ke ${email}`);
     return true;
   } catch (err) {
     console.error("Gagal kirim email verifikasi:", err);
@@ -121,14 +121,19 @@ export async function notifyAlert(
     const tujuan = users.map((u) => u.email);
     if (tujuan.length === 0) return;
 
-    await resend!.emails.send({
+    const { data, error } = await resend!.emails.send({
       from: process.env.ALERT_FROM_EMAIL ?? "Pentarium IoT <onboarding@resend.dev>",
       to: tujuan,
       subject: `Peringatan: ${device.name}`,
       html: template(device.name, message),
     });
 
-    console.log(`Email alert terkirim ke ${tujuan.join(", ")}`);
+    if (error) {
+      console.error("RESEND MENOLAK:", JSON.stringify(error));
+      return;
+    }
+
+    console.log(`Email alert terkirim (id: ${data?.id}) ke ${tujuan.join(", ")}`);
   } catch (err) {
     // notifikasi gagal tidak boleh mengganggu penerimaan data
     console.error("Gagal kirim email alert:", err);

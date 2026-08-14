@@ -1,7 +1,7 @@
 import mqtt from "mqtt";
 import "dotenv/config";
 
-const DEVICE_TOKEN = "09d2e45075837e72c791a446d98917486eeafa3f94b4e9e3";
+const DEVICE_TOKEN = "3825b074e2a348e673983175884624a0e4441ddb7a291342";
 
 const client = mqtt.connect(process.env.MQTT_URL as string);
 const topicTelemetry = `pentarium/${DEVICE_TOKEN}/telemetry`;

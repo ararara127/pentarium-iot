@@ -1,0 +1,16 @@
+$kind: http-request
+name: New Request
+url: http://103.6.168.182:3000/api/auth/register
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"azzahraindah127@gmail.com\",\r
+
+    \  \"password\": \"ara123\",\r
+
+    \  \"tenantName\": \"Pentarium\"\r
+
+    }"
+order: 4499441648435808

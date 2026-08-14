@@ -1,2 +1,9 @@
 $kind: collection
 name: API platform-iot
+variables:
+  - key: json_web_token_1edv
+    secret: true
+    disabled: false
+  - key: supabase_service_role_api_key_1edv
+    secret: true
+    disabled: false
